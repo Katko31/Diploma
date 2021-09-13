@@ -13,7 +13,7 @@ from Bio import SeqIO
 from Bio.Align.Applications import ClustalwCommandline
 from Bio import Phylo
 
-TOKEN = "1792882826:AAHbwAoqjOKC65RrNTTNVmpWN7mGMNRPWZA"
+TOKEN = " "
 Entrez.email = "pardus_2000@rambler.ru"
 
 bot = telebot.TeleBot(TOKEN)
