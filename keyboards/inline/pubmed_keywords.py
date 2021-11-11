@@ -10,11 +10,11 @@ def keywords_buttons(keywords):
         ],
         [
             InlineKeyboardButton(text="Настроить временные рамки самостоятельно",
-                                 callback_data=set_time_callback.new(keywords=keywords)),
+                                 callback_data=time_callback.new(keywords=keywords)),
         ],
         [
             InlineKeyboardButton(text="Выбрать журнал",
-                                 callback_data=set_time_callback.new(keywords=keywords)),
+                                 callback_data=journal_callback.new(keywords=keywords)),
         ]
     ])
     return button
