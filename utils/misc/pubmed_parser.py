@@ -31,3 +31,13 @@ def get_article_info(article_id):
                 'SO'] + '\n' + '\n'
 
     return reply, doi
+
+
+def get_articles_by_journal(keywords: str, journal_name: str):
+    logging.info(f"{keywords=}")
+    with Entrez.esearch(db="pubmed", term=keywords + '[keyword]' + ' AND ' + journal_name + '[Journal]', retmax=3) as handle:
+        result = Entrez.read(handle)
+
+    article_id = result["IdList"]
+    return article_id
+
