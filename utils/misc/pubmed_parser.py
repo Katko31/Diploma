@@ -8,10 +8,14 @@ from .url_article import create_doi_link_to_article
 Entrez.email = EMAIL
 
 
-def get_article_id(keywords: str):
+def get_article_id(keywords: str, exception_list=None):
     logging.info(f"{keywords=}")
-    with Entrez.esearch(db="pubmed", term=keywords + '[keyword]', retmax=3) as handle:
-        result = Entrez.read(handle)
+    if exception_list:
+        with Entrez.esearch(db="pubmed", term=keywords + '[keyword]', retmax=3, retstart=len(exception_list)) as handle:
+            result = Entrez.read(handle)
+    else:
+        with Entrez.esearch(db="pubmed", term=keywords + '[keyword]', retmax=3) as handle:
+            result = Entrez.read(handle)
 
     article_id = result["IdList"]
     return article_id

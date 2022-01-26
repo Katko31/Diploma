@@ -11,3 +11,7 @@ journal_callback = CallbackData("journal", "keywords")
 # get_url_callback = CallbackData("url", "article_id")
 
 gost_callback = CallbackData("gost", "article_id")
+
+cancel_callback = CallbackData("no")
+
+

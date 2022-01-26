@@ -45,3 +45,17 @@ def url_and_gost_buttons(article_id, url):
         ],
     ])
     return button
+
+
+def agree_buttons(keywords):
+    button = InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(text="Да",
+                                 callback_data=first_seven_articles_callback.new(keywords=keywords)),
+        ],
+        [
+            InlineKeyboardButton(text="Нет",
+                                 callback_data=cancel_callback.new()),
+        ],
+    ])
+    return button
