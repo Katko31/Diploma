@@ -15,7 +15,11 @@ def keywords_buttons(keywords):
         [
             InlineKeyboardButton(text="Выбрать журнал",
                                  callback_data=journal_callback.new(keywords=keywords)),
-        ]
+        ],
+        [
+            InlineKeyboardButton(text="Выбрать автора",
+                                 callback_data=author_callback.new(keywords=keywords)),
+        ],
     ])
     return button
 
@@ -25,6 +29,10 @@ def keywords_buttons_2(keywords):
         [
             InlineKeyboardButton(text="Первые 7 статей за этот год",
                                  callback_data=first_seven_articles_callback.new(keywords=keywords)),
+        ],
+        [
+            InlineKeyboardButton(text="Выбрать автора",
+                                 callback_data=author_callback.new(keywords=keywords)),
         ],
         [
             InlineKeyboardButton(text="Настроить временные рамки самостоятельно",
