@@ -1,7 +1,7 @@
 from aiogram.dispatcher.storage import FSMContext
 
 
-def get_data(data_name, state: FSMContext):
+async def get_data(data_name, state: FSMContext):
     try:
         async with state.proxy() as data:
             d_name = data[data_name]

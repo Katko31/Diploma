@@ -8,5 +8,6 @@ async def set_default_commands(dp):
             types.BotCommand("help", "Вывести справку"),
             types.BotCommand("keywords", "Поиск статей по ключевым словам"),
             types.BotCommand("author", "Поиск статей по автору"),
+            types.BotCommand("accession", "Поиск в NCBI последовательностей по accession number"),
         ]
     )

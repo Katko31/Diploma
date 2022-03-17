@@ -16,4 +16,6 @@ gost_callback = CallbackData("gost", "article_id")
 
 cancel_callback = CallbackData("no")
 
+accession_callback = CallbackData("acc", "accession")
+
 

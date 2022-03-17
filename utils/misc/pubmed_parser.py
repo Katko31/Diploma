@@ -22,10 +22,12 @@ def get_article_id(keywords: str, exception_list=None, journal_name=None, author
         query = keywords + '[keyword]' + ' AND ' + journal_name + '[Journal]'
     elif keywords and author_name and journal_name is None:
         query = keywords + '[keyword]' + ' AND ' + author_name + '[AUTHOR]'
-    else:
+    elif keywords and author_name and journal_name:
         query = keywords + '[keyword]' + ' AND ' + author_name + '[AUTHOR]' + ' AND ' + journal_name + '[Journal]'
 
-    if exception_list is None:
+    logging.info(f"{query=}")
+
+    if exception_list is None or exception_list == []:
         with Entrez.esearch(db="pubmed", term=query, retmax=articles_number) as handle:
             result = Entrez.read(handle)
     else:

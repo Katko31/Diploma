@@ -52,24 +52,24 @@ async def show_first_seven_articles(call: CallbackQuery, callback_data: dict, st
         async with state.proxy() as data:
             journal_name = data['journal_name']
     except KeyError:
-        print('dfjdk')
+        print('Журнал не задан')
 
     try:
         async with state.proxy() as data:
             exception_list = data['exception_id_list']
     except KeyError:
-        print('dfjdk')
+        print('Эксепшн лист пустой')
 
     try:
         async with state.proxy() as data:
             author_name = data['author_name']
     except KeyError:
-        print('dfjdk')
+        print('Автор не задан')
 
     logging.info(f"{keywords=}")
     logging.info(f"{journal_name=}")
     logging.info(f"{exception_list=}")
-    logging.info(f" Что отображается в хэндлере первых семи статей {journal_name}")
+    logging.info(f"{author_name=}")
     # logging.info(f" Что же все-таки лежит в дэйта {dat=}")
 
     # if journal_name is None and exception_list is None:
@@ -163,3 +163,4 @@ async def reset_proxy(call: CallbackQuery, state: FSMContext):
     await bot.send_message(chat_id=call.from_user.id, text="Спасибо за обращение, надеемся было полезно ",
                            reply_markup=None)
     await state.reset_state()
+
