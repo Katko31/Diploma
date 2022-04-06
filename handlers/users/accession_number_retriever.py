@@ -1,11 +1,9 @@
 from loader import dp, bot
 import logging
 from aiogram import types
-from pathlib import Path
 from aiogram.dispatcher.filters import Command
-from aiogram.types import Message, CallbackQuery, ParseMode
+from aiogram.types import Message, CallbackQuery
 from keyboards.inline.ncbi_accession import *
-# from keyboards.inline.pubmed_keywords import *
 from aiogram.dispatcher.storage import FSMContext
 from utils.misc.prefix_creator import get_prefix
 from utils.misc.fasta_creator import fasta_creator
@@ -27,7 +25,7 @@ async def find_accession_number(message: Message, state: FSMContext):
 
 
 @dp.callback_query_handler(accession_callback.filter())
-async def download_accession_number(call: CallbackQuery, callback_data: dict, state: FSMContext):
+async def download_accession_number(call: CallbackQuery, callback_data: dict):
     await call.answer(cache_time=60)
     accession = callback_data.get("accession")
     logging.info(f"{accession=}")
@@ -39,14 +37,15 @@ async def download_accession_number(call: CallbackQuery, callback_data: dict, st
         logging.info(f'Условие, что префикс < 2 выполняется')
         path_to_doc = fasta_creator(accession, "nucleotide")
         logging.info(f'{path_to_doc=}')
-        # pass
     elif prefix == 3:
         path_to_doc = fasta_creator(accession, "protein")
-
     else:
         await bot.send_message(chat_id=call.from_user.id, text='Неправильно введен accession number', reply_markup=None)
 
     await bot.send_document(chat_id=call.from_user.id, document=types.InputFile(path_to_doc), reply_markup=None)
+    logging.info(f'Щас попрубую удалить {path_to_doc=}')
+    del path_to_doc
+    logging.info(f'Надеюсь, что все удалилось')
         # pass
     # else:
     #     pass
@@ -64,6 +63,3 @@ async def download_accession_number(call: CallbackQuery, callback_data: dict, st
     #            3 letters + 7 numerals
     #     """
 
-
-    # await bot.send_message(chat_id=call.from_user.id, text="Введите имя автора", reply_markup=None)
-    # await state.set_state('enter_author')

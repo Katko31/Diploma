@@ -6,8 +6,8 @@ from aiogram.types import Message, CallbackQuery, ParseMode
 from aiogram.dispatcher.storage import FSMContext
 from utils.misc.pubmed_parser import *
 from keyboards.inline.pubmed_keywords import *
-from utils.misc.data_retriever import get_data
-import html
+from data.config import ARTICLES_NUMBER
+from utils.misc.url_article import create_gost_link
 
 
 @dp.message_handler(state='enter_keywords')
@@ -24,30 +24,16 @@ async def find_keywords_article(message: Message, state: FSMContext):
     await state.set_state('enter_keywords')
 
 
-# @dp.callback_query_handler(text_contains="default")
 @dp.callback_query_handler(first_seven_articles_callback.filter())
 async def show_first_seven_articles(call: CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     logging.info(f" Что в колбэк{call.data=}")
-    # keywords = list(call.data.split(":"))[1]
     keywords = callback_data.get("keywords")
 
     journal_name = None
     exception_list = None
     author_name = None
 
-    # try:
-    #     journal_name = get_data('journal_name', state)
-    # except KeyError:
-    #     print('dfjdk')
-    # try:
-    #     exception_list = get_data('exception_list', state)
-    # except KeyError:
-    #     print('dfjdk')
-    # try:
-    #     author_name = get_data('author_name', state)
-    # except KeyError:
-    #     print('dfjdk')
     try:
         async with state.proxy() as data:
             journal_name = data['journal_name']
@@ -70,34 +56,26 @@ async def show_first_seven_articles(call: CallbackQuery, callback_data: dict, st
     logging.info(f"{journal_name=}")
     logging.info(f"{exception_list=}")
     logging.info(f"{author_name=}")
-    # logging.info(f" Что же все-таки лежит в дэйта {dat=}")
 
-    # if journal_name is None and exception_list is None:
-    #     article_id = get_article_id(keywords)
-    # elif journal_name is None and exception_list:
-    #     article_id = get_article_id(keywords, exception_list)
-    # elif journal_name:
-    #     article_id = get_articles_by_journal(keywords, journal_name)
     article_id = get_article_id(keywords, exception_list, journal_name, author_name)
 
     logging.info(f" Айдишники журналов {type(article_id)}")
+    logging.info(f" Количество объектов {len(article_id)}")
 
     for i in article_id:
-        logging.info(f" Тип ай {type(i)}")
-        logging.info(f" Тип ай {i=}")
         info, url = get_article_info(i)
-        # url = None
         logging.info(f"{info=}")
         logging.info(f"{url=}")
         await bot.send_message(chat_id=call.from_user.id,
-                               # text=html.escape(info), перенесла это в pubmed_parser
                                text=info,
-                               parse_mode=ParseMode.HTML, #еще одно **вно которое работает от раза к разу. Вроде работает
+                               parse_mode=ParseMode.HTML,
                                reply_markup=url_and_gost_buttons(i, url))
 
-    async with state.proxy() as data: #надо добавить проверку, если data['exception_id_list'] уже существует
-        # data['exception_id_list'] = article_id #вот так не работает, а код ниже работает
-        data['exception_id_list'] = [str(i) for i in article_id]
+    async with state.proxy() as data:
+        if 'exception_id_list' in data:
+            data['exception_id_list'] += ARTICLES_NUMBER
+        else:
+            data['exception_id_list'] = ARTICLES_NUMBER
 
     await bot.send_message(chat_id=call.from_user.id,
                            text='Продолжить поиск новых статей с заданными параметрами?',
@@ -107,10 +85,8 @@ async def show_first_seven_articles(call: CallbackQuery, callback_data: dict, st
 
 @dp.message_handler(state='enter_journal')
 async def articles_and_journal(message: types.Message, state: FSMContext):
-    # journal_name = message.text
     async with state.proxy() as data:
         keywords = data['key']
-        # data['article_by_journal'] = get_articles_by_journal(keywords, journal_name)
         data['journal_name'] = message.text
     logging.info(f"Проверка, что сохранилось на этапе введения журнала {data['journal_name']}")
 
@@ -133,10 +109,9 @@ async def set_journal_name(call: CallbackQuery, callback_data: dict, state: FSMC
 
 @dp.message_handler(state='enter_author')
 async def articles_and_author(message: types.Message, state: FSMContext):
-    # journal_name = message.text
+
     async with state.proxy() as data:
         keywords = data['key']
-        # data['article_by_journal'] = get_articles_by_journal(keywords, journal_name)
         data['author_name'] = message.text
     logging.info(f"Проверка, что сохранилось на этапе введения журнала {data['author_name']}")
 
@@ -155,6 +130,14 @@ async def set_author_name(call: CallbackQuery, callback_data: dict, state: FSMCo
     logging.info(f"{data['key']}")
     await bot.send_message(chat_id=call.from_user.id, text="Введите имя автора", reply_markup=None)
     await state.set_state('enter_author')
+
+
+@dp.callback_query_handler(gost_callback.filter())
+async def get_gost_citation(call: CallbackQuery, callback_data: dict):
+    await call.answer(cache_time=60)
+    citation = create_gost_link(callback_data.get("article_id"))
+    await bot.send_message(chat_id=call.from_user.id, text=citation, reply_markup=None)
+    # await bot.answer_inline_query(chat_id=call.from_user.id, text=citation, reply_markup=None)
 
 
 @dp.callback_query_handler(cancel_callback.filter())

@@ -5,7 +5,6 @@ from Bio import Medline
 from data.config import EMAIL, ARTICLES_NUMBER
 from .url_article import create_doi_link_to_article
 from aiogram.utils.markdown import hbold, hitalic
-# import inspect
 import html
 
 Entrez.email = EMAIL
@@ -14,7 +13,6 @@ articles_number = ARTICLES_NUMBER
 
 def get_article_id(keywords: str, exception_list=None, journal_name=None, author_name=None):
     logging.info(f"{keywords=}")
-    # inspect.signature(get_article_id)
 
     if keywords and journal_name is None and author_name is None:
         query = keywords + '[keyword]'
@@ -27,33 +25,26 @@ def get_article_id(keywords: str, exception_list=None, journal_name=None, author
 
     logging.info(f"{query=}")
 
-    if exception_list is None or exception_list == []:
-        with Entrez.esearch(db="pubmed", term=query, retmax=articles_number) as handle:
-            result = Entrez.read(handle)
+    with Entrez.esearch(db="pubmed", term=query, usehistory='y') as handle:
+        result = Entrez.read(handle)
+
+    if exception_list is None:
+        with Entrez.esummary(db='pubmed', webenv=result['WebEnv'], query_key=result['QueryKey'], retmax=articles_number) as h:
+            summary = Entrez.read(h)
     else:
-        with Entrez.esearch(db="pubmed", term=query, retstart=articles_number + len(exception_list),
-                            retmax=articles_number + 2 * len(exception_list)) as handle:
-            result = Entrez.read(handle)
+        with Entrez.esummary(db='pubmed', webenv=result['WebEnv'], query_key=result['QueryKey'],
+                             retstart=exception_list, retmax=articles_number) as h:
+            summary = Entrez.read(h)
 
-    article_id = result["IdList"]
+    article_id = [summary[i]['Id'] for i in range(articles_number)]
     return article_id
-
-    # if exception_list:
-    #     with Entrez.esearch(db="pubmed", term=keywords + '[keyword]', retmax=3, retstart=len(exception_list)) as handle:
-    #         result = Entrez.read(handle)
-    # else:
-    #     with Entrez.esearch(db="pubmed", term=keywords + '[keyword]', retmax=3) as handle:
-    #         result = Entrez.read(handle)
-    #
-    # article_id = result["IdList"]
-    # return article_id
 
 
 def get_article_info(article_id):
     with Entrez.efetch(db="pubmed", id=article_id, retmode="text", rettype="medLine") as handle:
         rt = Medline.read(handle)
 
-        doi = create_doi_link_to_article(rt) #отдельно бы эту функцию прописать! сохранить отдельно rt
+        doi = create_doi_link_to_article(rt)
 
         if 'AB' in rt:
             reply = hbold('TITLE: ') + html.escape(rt['TI']) + '\n' + hbold('ABSTRACT: ') + \
