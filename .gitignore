@@ -110,6 +110,7 @@ ENV/
 env.bak/
 venv.bak/
 Downloaded_docs_ncbi/
+Downloaded_fasta_aln/
 
 # Spyder project settings
 .spyderproject

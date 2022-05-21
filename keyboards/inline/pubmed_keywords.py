@@ -5,13 +5,13 @@ from keyboards.inline.callback_datas import *
 def keywords_buttons(keywords):
     button = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="Первые 7 статей за этот год",
+            InlineKeyboardButton(text="Первые 5 статей за этот год",
                                  callback_data=first_seven_articles_callback.new(keywords=keywords)),
         ],
-        [
-            InlineKeyboardButton(text="Настроить временные рамки самостоятельно",
-                                 callback_data=time_callback.new(keywords=keywords)),
-        ],
+        # [
+        #     InlineKeyboardButton(text="Настроить временные рамки самостоятельно",
+        #                          callback_data=time_callback.new(keywords=keywords)),
+        # ],
         [
             InlineKeyboardButton(text="Выбрать журнал",
                                  callback_data=journal_callback.new(keywords=keywords)),
@@ -27,7 +27,7 @@ def keywords_buttons(keywords):
 def keywords_buttons_2(keywords):
     button = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="Первые 7 статей за этот год",
+            InlineKeyboardButton(text="Первые 4 статьи за этот год",
                                  callback_data=first_seven_articles_callback.new(keywords=keywords)),
         ],
         [

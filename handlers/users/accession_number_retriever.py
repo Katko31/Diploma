@@ -7,6 +7,7 @@ from keyboards.inline.ncbi_accession import *
 from aiogram.dispatcher.storage import FSMContext
 from utils.misc.prefix_creator import get_prefix
 from utils.misc.fasta_creator import fasta_creator
+import os
 
 
 @dp.message_handler(state='enter_accession')
@@ -44,7 +45,7 @@ async def download_accession_number(call: CallbackQuery, callback_data: dict):
 
     await bot.send_document(chat_id=call.from_user.id, document=types.InputFile(path_to_doc), reply_markup=None)
     logging.info(f'Щас попрубую удалить {path_to_doc=}')
-    del path_to_doc
+    os.remove(path_to_doc) #TODO написать обработку ошибок с finally
     logging.info(f'Надеюсь, что все удалилось')
         # pass
     # else:

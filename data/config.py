@@ -10,3 +10,4 @@ IP = env.str("ip")  # Тоже str, но для айпи адреса хоста
 EMAIL = env.str("EMAIL")
 ARTICLES_NUMBER = env.int("ARTICLES_NUMBER")
 PATH_TO_DOCS_FROM_NCBI = env.str("PATH_TO_DOCS_FROM_NCBI")
+PATH_TO_FASTA_ALN = env.str("PATH_TO_FASTA_ALN")
