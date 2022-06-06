@@ -5,7 +5,7 @@ from keyboards.inline.callback_datas import *
 def keywords_buttons(keywords):
     button = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="Первые 5 статей за этот год",
+            InlineKeyboardButton(text="Первые 7 статей",
                                  callback_data=first_seven_articles_callback.new(keywords=keywords)),
         ],
         # [
@@ -19,6 +19,10 @@ def keywords_buttons(keywords):
         [
             InlineKeyboardButton(text="Выбрать автора",
                                  callback_data=author_callback.new(keywords=keywords)),
+        ],
+        [
+            InlineKeyboardButton(text="Отмена",
+                                 callback_data=cancel_callback.new()),
         ],
     ])
     return button

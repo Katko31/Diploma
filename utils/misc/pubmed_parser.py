@@ -15,12 +15,15 @@ def get_article_id(keywords: str, exception_list=None, journal_name=None, author
     logging.info(f"{keywords=}")
 
     if keywords and journal_name is None and author_name is None:
-        query = keywords + '[keyword]'
+        query = keywords #+ '[keyword]'
     elif keywords and journal_name and author_name is None:
-        query = keywords + '[keyword]' + ' AND ' + journal_name + '[Journal]'
+        # query = keywords + '[keyword]' + ' AND ' + journal_name + '[Journal]'
+        query = keywords + ' AND ' + journal_name + '[Journal]'
     elif keywords and author_name and journal_name is None:
-        query = keywords + '[keyword]' + ' AND ' + author_name + '[AUTHOR]'
+        # query = keywords + '[keyword]' + ' AND ' + author_name + '[AUTHOR]'
+        query = keywords + ' AND ' + author_name + '[AUTHOR]'
     elif keywords and author_name and journal_name:
+        # query = keywords + '[keyword]' + ' AND ' + author_name + '[AUTHOR]' + ' AND ' + journal_name + '[Journal]'
         query = keywords + '[keyword]' + ' AND ' + author_name + '[AUTHOR]' + ' AND ' + journal_name + '[Journal]'
 
     logging.info(f"{query=}")
@@ -29,7 +32,8 @@ def get_article_id(keywords: str, exception_list=None, journal_name=None, author
         result = Entrez.read(handle)
 
     if exception_list is None:
-        with Entrez.esummary(db='pubmed', webenv=result['WebEnv'], query_key=result['QueryKey'], retmax=articles_number) as h:
+        with Entrez.esummary(db='pubmed', webenv=result['WebEnv'], query_key=result['QueryKey'],
+                             retmax=articles_number) as h:
             summary = Entrez.read(h)
     else:
         with Entrez.esummary(db='pubmed', webenv=result['WebEnv'], query_key=result['QueryKey'],

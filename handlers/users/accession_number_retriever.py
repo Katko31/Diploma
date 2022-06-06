@@ -41,9 +41,12 @@ async def download_accession_number(call: CallbackQuery, callback_data: dict):
     elif prefix == 3:
         path_to_doc = fasta_creator(accession, "protein")
     else:
-        await bot.send_message(chat_id=call.from_user.id, text='Неправильно введен accession number', reply_markup=None)
+        await bot.send_message(chat_id=call.from_user.id, text='Неправильно введен accession number',
+                               reply_markup=None)
 
-    await bot.send_document(chat_id=call.from_user.id, document=types.InputFile(path_to_doc), reply_markup=None)
+    await bot.send_document(chat_id=call.from_user.id, document=types.InputFile(path_to_doc),
+                            reply_markup=None)
+
     logging.info(f'Щас попрубую удалить {path_to_doc=}')
     os.remove(path_to_doc) #TODO написать обработку ошибок с finally
     logging.info(f'Надеюсь, что все удалилось')

@@ -20,7 +20,7 @@ async def show_pubmed_items(message: types.Message, state: FSMContext):
 
 @dp.message_handler(Command("keywords"))
 async def find_keywords_article(message: Message, state: FSMContext):
-    await message.answer('Введите ключевое слово или слова через пробел для поиска статей')
+    await message.answer('Введите ключевое слово или слова через пробел для поиска первых 7 статей')
     await state.set_state('enter_keywords')
 
 
@@ -143,7 +143,7 @@ async def get_gost_citation(call: CallbackQuery, callback_data: dict):
 @dp.callback_query_handler(cancel_callback.filter())
 async def reset_proxy(call: CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
-    await bot.send_message(chat_id=call.from_user.id, text="Спасибо за обращение, надеемся было полезно ",
+    await bot.send_message(chat_id=call.from_user.id, text="Спасибо за обращение, надеемся было полезно",
                            reply_markup=None)
     await state.reset_state()
 
