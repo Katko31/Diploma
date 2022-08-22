@@ -48,11 +48,11 @@ async def create_phylogenetic(message: types.Message, state: FSMContext):
             matplotlib.rc('ytick', labelsize=10)
             axes = fig.add_subplot(1, 1, 1)
             Phylo.draw(tree, axes=axes)
-            fig.savefig(f"{PATH_TO_FASTA_ALN}/temporar_name")
+            fig.savefig(f"{PATH_TO_FASTA_ALN}/{message.from_user.full_name}")
 
 
             # await message.answer(text=f"документ сохранился по адресу: {path_to_download}")
-            await message.answer_photo(types.InputFile(f"{PATH_TO_FASTA_ALN}/temporar_name.png"))
+            await message.answer_photo(types.InputFile(f"{PATH_TO_FASTA_ALN}/{message.from_user.full_name}.png"))
 
         except Exception as e:
             await message.answer(text=f"{e}")
@@ -63,9 +63,9 @@ async def create_phylogenetic(message: types.Message, state: FSMContext):
     else:
         await message.answer(text="Отправлять можно только документы")
 
-    filelist = glob.glob(os.path.join(PATH_TO_FASTA_ALN, "*"))
-    for f in filelist:
-        os.remove(f) #TODO модифицировать!
+    # filelist = glob.glob(os.path.join(PATH_TO_FASTA_ALN, "*"))
+    # for f in filelist:
+    #     os.remove(f) #TODO модифицировать!
     await state.reset_state()
 
 

@@ -109,9 +109,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-Downloaded_docs_ncbi/
-Downloaded_fasta_aln/
-middlewares
 handlers/users/asa.py
 handlers/users/echo.py
 

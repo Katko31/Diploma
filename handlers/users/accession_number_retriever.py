@@ -34,22 +34,31 @@ async def download_accession_number(call: CallbackQuery, callback_data: dict):
     prefix = get_prefix(accession)
     logging.info(f'{prefix=}')
 
-    if prefix <= 2:
-        logging.info(f'Условие, что префикс < 2 выполняется')
-        path_to_doc = fasta_creator(accession, "nucleotide")
-        logging.info(f'{path_to_doc=}')
-    elif prefix == 3:
-        path_to_doc = fasta_creator(accession, "protein")
-    else:
-        await bot.send_message(chat_id=call.from_user.id, text='Неправильно введен accession number',
+    try:
+
+        if prefix <= 2:
+            logging.info(f'Условие, что префикс < 2 выполняется')
+            path_to_doc = fasta_creator(accession, "nucleotide")
+            logging.info(f'{path_to_doc=}')
+        elif prefix == 3:
+            path_to_doc = fasta_creator(accession, "protein")
+        else:
+            await bot.send_message(chat_id=call.from_user.id, text='Неправильно введен accession number',
+                                   reply_markup=None)
+
+        await bot.send_document(chat_id=call.from_user.id, document=types.InputFile(path_to_doc),
+                                reply_markup=None)
+
+        logging.info(f'Щас попрубую удалить {path_to_doc=}')
+        os.remove(path_to_doc) #TODO написать обработку ошибок с finally
+        logging.info(f'Надеюсь, что все удалилось')
+
+    except Exception as e:
+        await bot.send_message(chat_id=call.from_user.id, text=f"{e}", reply_markup=None)
+
+    finally:
+        await bot.send_message(chat_id=call.from_user.id, text=f"Спасибо за обращение!",
                                reply_markup=None)
-
-    await bot.send_document(chat_id=call.from_user.id, document=types.InputFile(path_to_doc),
-                            reply_markup=None)
-
-    logging.info(f'Щас попрубую удалить {path_to_doc=}')
-    os.remove(path_to_doc) #TODO написать обработку ошибок с finally
-    logging.info(f'Надеюсь, что все удалилось')
         # pass
     # else:
     #     pass

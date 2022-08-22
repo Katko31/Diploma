@@ -1,5 +1,6 @@
 from loader import dp, bot
 import logging
+import os
 from aiogram import types
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery, ParseMode
@@ -8,6 +9,7 @@ from utils.misc.pubmed_parser import *
 from keyboards.inline.pubmed_keywords import *
 from data.config import ARTICLES_NUMBER
 from utils.misc.url_article import create_gost_link
+from utils.misc.sequences_retriever import sequences_from_article
 
 
 @dp.message_handler(state='enter_keywords')
@@ -57,30 +59,36 @@ async def show_first_seven_articles(call: CallbackQuery, callback_data: dict, st
     logging.info(f"{exception_list=}")
     logging.info(f"{author_name=}")
 
-    article_id = get_article_id(keywords, exception_list, journal_name, author_name)
+    try:
 
-    logging.info(f" Айдишники журналов {type(article_id)}")
-    logging.info(f" Количество объектов {len(article_id)}")
+        article_id = get_article_id(keywords, exception_list, journal_name, author_name)
 
-    for i in article_id:
-        info, url = get_article_info(i)
-        logging.info(f"{info=}")
-        logging.info(f"{url=}")
+        logging.info(f" Айдишники журналов {type(article_id)}")
+        logging.info(f" Количество объектов {len(article_id)}")
+
+        for i in article_id:
+            info, url = get_article_info(i)
+            logging.info(f"{info=}")
+            logging.info(f"{url=}")
+            await bot.send_message(chat_id=call.from_user.id,
+                                   text=info,
+                                   parse_mode=ParseMode.HTML,
+                                   reply_markup=url_and_gost_buttons(i, url))
+
+        async with state.proxy() as data:
+            if 'exception_id_list' in data:
+                data['exception_id_list'] += ARTICLES_NUMBER
+            else:
+                data['exception_id_list'] = ARTICLES_NUMBER
+
         await bot.send_message(chat_id=call.from_user.id,
-                               text=info,
-                               parse_mode=ParseMode.HTML,
-                               reply_markup=url_and_gost_buttons(i, url))
+                               text='Продолжить поиск новых статей с заданными параметрами?',
+                               reply_markup=agree_buttons(keywords))
+        await state.reset_state(with_data=False)
 
-    async with state.proxy() as data:
-        if 'exception_id_list' in data:
-            data['exception_id_list'] += ARTICLES_NUMBER
-        else:
-            data['exception_id_list'] = ARTICLES_NUMBER
-
-    await bot.send_message(chat_id=call.from_user.id,
-                           text='Продолжить поиск новых статей с заданными параметрами?',
-                           reply_markup=agree_buttons(keywords))
-    await state.reset_state(with_data=False)
+    except Exception as e:
+        await bot.send_message(chat_id=call.from_user.id, text=f"Произошла ошибка: \n {e}", reply_markup=None)
+        await state.reset_state()
 
 
 @dp.message_handler(state='enter_journal')
@@ -146,4 +154,23 @@ async def reset_proxy(call: CallbackQuery, state: FSMContext):
     await bot.send_message(chat_id=call.from_user.id, text="Спасибо за обращение, надеемся было полезно",
                            reply_markup=None)
     await state.reset_state()
+
+
+@dp.callback_query_handler(check_access_to_sequences.filter())
+async def set_journal_name(call: CallbackQuery, callback_data: dict):
+    await call.answer(cache_time=60)
+
+    article_id = callback_data.get("article_id")
+    logging.info(f"{article_id=}")
+
+    path_to_sequences = sequences_from_article(article_id)
+
+    if path_to_sequences == 1:
+        await bot.send_message(chat_id=call.from_user.id, text='Кажется нет последовательностей, свзанных с этой статьей',
+                               reply_markup=None)
+
+    else:
+        await bot.send_document(chat_id=call.from_user.id, document=types.InputFile(path_to_sequences),
+                                reply_markup=None)
+        os.remove(path_to_sequences)
 

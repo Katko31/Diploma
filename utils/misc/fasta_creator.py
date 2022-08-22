@@ -1,7 +1,6 @@
 from pathlib import Path
 from Bio import Entrez
 from Bio import SeqIO
-from io import BytesIO
 from data.config import PATH_TO_DOCS_FROM_NCBI
 
 

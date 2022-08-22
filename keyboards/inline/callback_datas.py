@@ -18,4 +18,6 @@ cancel_callback = CallbackData("no")
 
 accession_callback = CallbackData("acc", "accession")
 
+check_access_to_sequences = CallbackData("check", "article_id")
+
 

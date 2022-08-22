@@ -5,3 +5,4 @@ from . import url_article
 from . import data_retriever
 from . import prefix_creator
 from . import fasta_creator
+from . import sequences_retriever

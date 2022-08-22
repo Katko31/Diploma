@@ -55,6 +55,10 @@ def url_and_gost_buttons(article_id, url):
             InlineKeyboardButton(text="Получить ссылку, оформленную по ГОСТу",
                                  callback_data=gost_callback.new(article_id=article_id)),
         ],
+        [
+            InlineKeyboardButton(text="Проверить доступ к последовательностям из статьи",
+                                 callback_data=check_access_to_sequences.new(article_id=article_id)),
+        ],
     ])
     return button
 
