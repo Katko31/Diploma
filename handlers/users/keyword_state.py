@@ -8,7 +8,7 @@ from aiogram.dispatcher.storage import FSMContext
 from utils.misc.pubmed_parser import *
 from keyboards.inline.pubmed_keywords import *
 from data.config import ARTICLES_NUMBER
-from utils.misc.url_article import create_gost_link
+# from utils.misc.url_article import create_gost_link
 from utils.misc.sequences_retriever import sequences_from_article
 
 
@@ -22,7 +22,7 @@ async def show_pubmed_items(message: types.Message, state: FSMContext):
 
 @dp.message_handler(Command("keywords"))
 async def find_keywords_article(message: Message, state: FSMContext):
-    await message.answer('Введите ключевое слово или слова через пробел для поиска первых 7 статей')
+    await message.answer('Enter keyword/s with a space to start search first 7 articles')
     await state.set_state('enter_keywords')
 
 
@@ -40,19 +40,19 @@ async def show_first_seven_articles(call: CallbackQuery, callback_data: dict, st
         async with state.proxy() as data:
             journal_name = data['journal_name']
     except KeyError:
-        print('Журнал не задан')
+        print('Journal filter empty')
 
     try:
         async with state.proxy() as data:
             exception_list = data['exception_id_list']
     except KeyError:
-        print('Эксепшн лист пустой')
+        print('Exception list is empty')
 
     try:
         async with state.proxy() as data:
             author_name = data['author_name']
     except KeyError:
-        print('Автор не задан')
+        print('Author not set')
 
     logging.info(f"{keywords=}")
     logging.info(f"{journal_name=}")
@@ -82,12 +82,12 @@ async def show_first_seven_articles(call: CallbackQuery, callback_data: dict, st
                 data['exception_id_list'] = ARTICLES_NUMBER
 
         await bot.send_message(chat_id=call.from_user.id,
-                               text='Продолжить поиск новых статей с заданными параметрами?',
+                               text='Continue search with the same parameters?',
                                reply_markup=agree_buttons(keywords))
         await state.reset_state(with_data=False)
 
     except Exception as e:
-        await bot.send_message(chat_id=call.from_user.id, text=f"Произошла ошибка: \n {e}", reply_markup=None)
+        await bot.send_message(chat_id=call.from_user.id, text=f"There is a mistake: \n {e}", reply_markup=None)
         await state.reset_state()
 
 
@@ -98,8 +98,21 @@ async def articles_and_journal(message: types.Message, state: FSMContext):
         data['journal_name'] = message.text
     logging.info(f"Проверка, что сохранилось на этапе введения журнала {data['journal_name']}")
 
-    await message.answer(text=f"Ключевые слова для поиска: {keywords} в журнале: {data['journal_name']}",
-                         reply_markup=keywords_buttons(keywords))
+    author_name = None
+
+    try:
+        async with state.proxy() as data:
+            author_name = data['author_name']
+    except KeyError:
+        print('Author not set')
+
+    if author_name:
+        await message.answer(
+            text=f"Keyword/s for search: {keywords} in journal: {data['journal_name']} and author name: {author_name}",
+            reply_markup=keywords_buttons(keywords))
+    else:
+        await message.answer(text=f"Keyword/s for search: {keywords} in journal: {data['journal_name']}",
+                             reply_markup=keywords_buttons(keywords))
 
     await state.reset_state(with_data=False)
 
@@ -111,7 +124,7 @@ async def set_journal_name(call: CallbackQuery, callback_data: dict, state: FSMC
         data['key'] = callback_data.get("keywords")
     # keywords = callback_data.get("keywords")
     logging.info(f"{data['key']}")
-    await bot.send_message(chat_id=call.from_user.id, text="Введите название журнала", reply_markup=None)
+    await bot.send_message(chat_id=call.from_user.id, text="Enter journal name", reply_markup=None)
     await state.set_state('enter_journal')
 
 
@@ -123,8 +136,20 @@ async def articles_and_author(message: types.Message, state: FSMContext):
         data['author_name'] = message.text
     logging.info(f"Проверка, что сохранилось на этапе введения журнала {data['author_name']}")
 
-    await message.answer(text=f"Ключевые слова для поиска: {keywords} по имени автора: {data['author_name']}",
-                         reply_markup=keywords_buttons(keywords))
+    journal_name = None
+
+    try:
+        async with state.proxy() as data:
+            journal_name = data['journal_name']
+    except KeyError:
+        print('Journal filter empty')
+
+    if journal_name:
+        await message.answer(text=f"Keyword/s for search: {keywords} and author name: {data['author_name']} and journal: {journal_name}",
+                             reply_markup=keywords_buttons(keywords))
+    else:
+        await message.answer(text=f"Keyword/s for search: {keywords} and author name: {data['author_name']}",
+                             reply_markup=keywords_buttons(keywords))
 
     await state.reset_state(with_data=False)
 
@@ -136,22 +161,22 @@ async def set_author_name(call: CallbackQuery, callback_data: dict, state: FSMCo
         data['key'] = callback_data.get("keywords")
     # keywords = callback_data.get("keywords")
     logging.info(f"{data['key']}")
-    await bot.send_message(chat_id=call.from_user.id, text="Введите имя автора", reply_markup=None)
+    await bot.send_message(chat_id=call.from_user.id, text="Enter author name", reply_markup=None)
     await state.set_state('enter_author')
 
 
-@dp.callback_query_handler(gost_callback.filter())
-async def get_gost_citation(call: CallbackQuery, callback_data: dict):
-    await call.answer(cache_time=60)
-    citation = create_gost_link(callback_data.get("article_id"))
-    await bot.send_message(chat_id=call.from_user.id, text=citation, reply_markup=None)
-    # await bot.answer_inline_query(chat_id=call.from_user.id, text=citation, reply_markup=None)
+# @dp.callback_query_handler(gost_callback.filter())
+# async def get_gost_citation(call: CallbackQuery, callback_data: dict):
+#     await call.answer(cache_time=60)
+#     citation = create_gost_link(callback_data.get("article_id"))
+#     await bot.send_message(chat_id=call.from_user.id, text=citation, reply_markup=None)
+    ## await bot.answer_inline_query(chat_id=call.from_user.id, text=citation, reply_markup=None)
 
 
 @dp.callback_query_handler(cancel_callback.filter())
 async def reset_proxy(call: CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
-    await bot.send_message(chat_id=call.from_user.id, text="Спасибо за обращение, надеемся было полезно",
+    await bot.send_message(chat_id=call.from_user.id, text="Thanks for using our service, hope it was useful",
                            reply_markup=None)
     await state.reset_state()
 
@@ -166,7 +191,7 @@ async def set_journal_name(call: CallbackQuery, callback_data: dict):
     path_to_sequences = sequences_from_article(article_id)
 
     if path_to_sequences == 1:
-        await bot.send_message(chat_id=call.from_user.id, text='Кажется нет последовательностей, свзанных с этой статьей',
+        await bot.send_message(chat_id=call.from_user.id, text='Seems like there is no sequences linked to this article',
                                reply_markup=None)
 
     else:

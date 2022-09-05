@@ -5,7 +5,7 @@ from keyboards.inline.callback_datas import *
 def keywords_buttons(keywords):
     button = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="Первые 7 статей",
+            InlineKeyboardButton(text="Retrieve 7 articles",
                                  callback_data=first_seven_articles_callback.new(keywords=keywords)),
         ],
         # [
@@ -13,15 +13,15 @@ def keywords_buttons(keywords):
         #                          callback_data=time_callback.new(keywords=keywords)),
         # ],
         [
-            InlineKeyboardButton(text="Выбрать журнал",
+            InlineKeyboardButton(text="Set journal name",
                                  callback_data=journal_callback.new(keywords=keywords)),
         ],
         [
-            InlineKeyboardButton(text="Выбрать автора",
+            InlineKeyboardButton(text="Set author's name",
                                  callback_data=author_callback.new(keywords=keywords)),
         ],
         [
-            InlineKeyboardButton(text="Отмена",
+            InlineKeyboardButton(text="Cancel",
                                  callback_data=cancel_callback.new()),
         ],
     ])
@@ -49,14 +49,14 @@ def keywords_buttons_2(keywords):
 def url_and_gost_buttons(article_id, url):
     button = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="Получить ссылку на статью", url=url),
+            InlineKeyboardButton(text="Link to article", url=url),
         ],
+        # [
+        #     InlineKeyboardButton(text="Получить ссылку, оформленную по ГОСТу",
+        #                          callback_data=gost_callback.new(article_id=article_id)),
+        # ],
         [
-            InlineKeyboardButton(text="Получить ссылку, оформленную по ГОСТу",
-                                 callback_data=gost_callback.new(article_id=article_id)),
-        ],
-        [
-            InlineKeyboardButton(text="Проверить доступ к последовательностям из статьи",
+            InlineKeyboardButton(text="Check access to sequences from the article",
                                  callback_data=check_access_to_sequences.new(article_id=article_id)),
         ],
     ])
@@ -66,11 +66,11 @@ def url_and_gost_buttons(article_id, url):
 def agree_buttons(keywords):
     button = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="Да",
+            InlineKeyboardButton(text="Yes",
                                  callback_data=first_seven_articles_callback.new(keywords=keywords)),
         ],
         [
-            InlineKeyboardButton(text="Нет",
+            InlineKeyboardButton(text="No",
                                  callback_data=cancel_callback.new()),
         ],
     ])

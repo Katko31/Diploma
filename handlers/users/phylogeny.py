@@ -55,7 +55,8 @@ async def create_phylogenetic(message: types.Message, state: FSMContext):
             await message.answer_photo(types.InputFile(f"{PATH_TO_FASTA_ALN}/{message.from_user.full_name}.png"))
 
         except Exception as e:
-            await message.answer(text=f"{e}")
+            logging.info(f"{e=}")
+            await message.answer(text=f"Error appear")
 
         finally:
             await state.reset_state()
@@ -65,7 +66,7 @@ async def create_phylogenetic(message: types.Message, state: FSMContext):
 
     # filelist = glob.glob(os.path.join(PATH_TO_FASTA_ALN, "*"))
     # for f in filelist:
-    #     os.remove(f) #TODO модифицировать!
+    #     os.remove(f) #TODO создать отдельную папку для каждого модифицировать!
     await state.reset_state()
 
 
