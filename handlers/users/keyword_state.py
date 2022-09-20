@@ -5,6 +5,7 @@ from aiogram import types
 from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery, ParseMode
 from aiogram.dispatcher.storage import FSMContext
+# from aiogram.utils.markdown import hbold
 from utils.misc.pubmed_parser import *
 from keyboards.inline.pubmed_keywords import *
 from data.config import ARTICLES_NUMBER
@@ -81,10 +82,15 @@ async def show_first_seven_articles(call: CallbackQuery, callback_data: dict, st
             else:
                 data['exception_id_list'] = ARTICLES_NUMBER
 
-        await bot.send_message(chat_id=call.from_user.id,
-                               text='Continue search with the same parameters?',
-                               reply_markup=agree_buttons(keywords))
-        await state.reset_state(with_data=False)
+        if len(article_id) < ARTICLES_NUMBER:
+            await bot.send_message(chat_id=call.from_user.id,
+                                   text='That is all that we could find by your request.\nTry new parameters')
+            await state.reset_state()
+        else:
+            await bot.send_message(chat_id=call.from_user.id,
+                                   text='Continue search with the same parameters?',
+                                   reply_markup=agree_buttons(keywords))
+            await state.reset_state(with_data=False)
 
     except Exception as e:
         await bot.send_message(chat_id=call.from_user.id, text=f"There is a mistake: \n {e}", reply_markup=None)
@@ -108,10 +114,10 @@ async def articles_and_journal(message: types.Message, state: FSMContext):
 
     if author_name:
         await message.answer(
-            text=f"Keyword/s for search: {keywords} in journal: {data['journal_name']} and author name: {author_name}",
+            text=f"Keyword(s): {keywords}\nJournal: {data['journal_name']}\nAuthor: {author_name}",
             reply_markup=keywords_buttons(keywords))
     else:
-        await message.answer(text=f"Keyword/s for search: {keywords} in journal: {data['journal_name']}",
+        await message.answer(text=f"Keyword(s): {keywords}\nJournal: {data['journal_name']}",
                              reply_markup=keywords_buttons(keywords))
 
     await state.reset_state(with_data=False)
@@ -145,10 +151,11 @@ async def articles_and_author(message: types.Message, state: FSMContext):
         print('Journal filter empty')
 
     if journal_name:
-        await message.answer(text=f"Keyword/s for search: {keywords} and author name: {data['author_name']} and journal: {journal_name}",
+
+        await message.answer(text=f"Keyword(s): {keywords}\nAuthor: {data['author_name']}\nJournal: {journal_name}",
                              reply_markup=keywords_buttons(keywords))
     else:
-        await message.answer(text=f"Keyword/s for search: {keywords} and author name: {data['author_name']}",
+        await message.answer(text=f"Keyword(s): {keywords}\nAuthor: {data['author_name']}",
                              reply_markup=keywords_buttons(keywords))
 
     await state.reset_state(with_data=False)

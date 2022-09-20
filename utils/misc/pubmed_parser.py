@@ -37,7 +37,12 @@ def get_article_id(keywords: str, exception_list=None, journal_name=None, author
                              retstart=exception_list, retmax=articles_number) as h:
             summary = Entrez.read(h)
 
-    article_id = [summary[i]['Id'] for i in range(articles_number)]
+    if int(result['Count']) < articles_number:
+        article_id = [summary[i]['Id'] for i in range(int(result['Count']))]
+    else:
+        article_id = [summary[i]['Id'] for i in range(articles_number)]
+        # last_articles = result['Count'] % 7 TODO process error if the number of last articles in row doesn't equel 7
+        # article_id = [summary[i]['Id'] for i in range(last_articles)]
     return article_id
 
 
